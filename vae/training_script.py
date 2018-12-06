@@ -3,6 +3,8 @@ import tensorflow as tf
 from vae_carl.helpers import batch_index_groups, dtype
 from vae_carl import mnist_data
 import vae_carl.vae as vae
+from imageio import imread
+import numpy as np
 
 train_total_data, _, _, _, test_data, test_labels = mnist_data.prepare_MNIST_data()
 
@@ -15,8 +17,25 @@ learn_rate = 1e-3
 batch_size = min(128, train_size)
 num_epochs = 10
 
-y_input = tf.placeholder(dtype, shape=[None, dim_img], name='input_img')
-y_output_true = tf.placeholder(dtype, shape=[None, dim_img], name='target_img')
+
+def rgb2gray(rgb):
+    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
+
+def add_gaussian_noise(im, prop, varSigma):
+    N = int(np.round(np.prod(im.shape)*prop))
+
+    index = np.unravel_index(np.random.permutation(np.prod(im.shape))[1:N],im.shape)
+    e = varSigma*np.random.randn(np.prod(im.shape)).reshape(im.shape)
+    im2 = np.copy(im)
+    im2[index] += e[index]
+    return im2
+
+# im = rgb2gray(imread('stan_lee.png'))
+# print (im.shape)
+# im1 = add_gaussian_noise (im, 0.7, 0.1)
+
+y_input = tf.placeholder(dtype, shape=[None, dim_img], name='taget_input')
+y_output_true = tf.placeholder(dtype, shape=[None, dim_img], name='target_output')
 
 # dropout
 keep_prob = tf.placeholder(dtype, name='keep_prob')

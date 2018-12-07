@@ -104,6 +104,8 @@ def gaussian_mlp_encoder(x, n_hidden, n_output, keep_prob, scope_name):
 
         # The mean parameter is unconstrained
         mean = gaussian_params[:, :n_output]
+
+
         # The standard deviation must be positive. Parametrize with a softplus and
         # add a small epsilon for numerical stability
         stddev = 1e-6 + tf.nn.softplus(gaussian_params[:, n_output:])
@@ -138,5 +140,5 @@ def bernoulli_mlp_decoder(z, n_hidden, n_output, keep_prob, reuse=False):
         wo = tf.get_variable('wo', [h1.get_shape()[1], n_output], initializer=w_init, dtype=dtype)
         bo = tf.get_variable('bo', [n_output], initializer=b_init, dtype=dtype)
         y = tf.sigmoid(tf.matmul(h1, wo) + bo)
-
+        tf.summary.image('y_output', y)
     return y
